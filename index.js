@@ -74,7 +74,7 @@ server.delete('/api/zoos/:id', (req, res) => {
     .then(count => {
       count > 0
       ? res.status(204).end()
-      : res.status(404).json({ message: "Zoo not found" });
+      : res.status(404).json({ message: "Zoo not found." });
     })
     .catch(err => {
       res.status(500).json(err);
@@ -82,7 +82,25 @@ server.delete('/api/zoos/:id', (req, res) => {
 })
 
 server.put('/api/zoos/:id', (req, res) => {
-  
+  const { id } = req.params;
+  const updatedZoo = req.body;
+
+  console.log(updatedZoo)
+
+  return !updatedZoo.name || updatedZoo.name === ''
+    ? res.status(400).json({ message: "Please provide a valid 'name' key and value." })
+    : db('zoos')
+      .where({ id })
+      .first()
+      .update(updatedZoo)
+        .then(count => {
+          count > 0
+            ? res.status(200).json(count)
+            : res.status(404).json({ message: "Zoo not found." });
+        })
+        .catch(err => {
+          res.status(500).json(err);
+        })
 })
 
 
