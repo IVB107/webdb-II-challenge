@@ -41,7 +41,6 @@ server.post('/api/zoos', (req, res) => {
 })
 
 server.get('/api/zoos', (req, res) => {
-  // Do Stuff
   db('zoos')
     .then(zoos => {
       res.status(200).json(zoos);
@@ -52,15 +51,38 @@ server.get('/api/zoos', (req, res) => {
 })
 
 server.get('/api/zoos/:id', (req, res) => {
-  // Do Stuff
+  const { id } = req.params;
+
+  db('zoos')
+    .where({ id })
+    .first()
+    .then(zoo => {
+      res.status(200).json(zoo);
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    })
 })
 
 server.delete('/api/zoos/:id', (req, res) => {
-  // Do Stuff
+  const { id } = req.params;
+
+  db('zoos')
+    .where({ id })
+    .first()
+    .del()
+    .then(count => {
+      count > 0
+      ? res.status(204).end()
+      : res.status(404).json({ message: "Zoo not found" });
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    })
 })
 
 server.put('/api/zoos/:id', (req, res) => {
-  // Do Stuff
+  
 })
 
 
