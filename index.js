@@ -19,6 +19,8 @@ const db = knex(knexConfig);
 
 // endpoints here
 
+// ZOOS
+
 server.post('/api/zoos', (req, res) => {
   db('zoos')
     .insert(req.body)
@@ -97,6 +99,92 @@ server.put('/api/zoos/:id', (req, res) => {
           count > 0
             ? res.status(200).json(count)
             : res.status(404).json({ message: "Zoo not found." });
+        })
+        .catch(err => {
+          res.status(500).json(err);
+        })
+})
+
+// BEARS
+
+server.post('/api/bears', (req, res) => {
+  db('bears')
+    .insert(req.body)
+    .then(ids => {
+      const id = ids[0];
+      console.log(ids)
+      db('bears')
+        .where({ id }) // ES6 => same as: .where({ id: id });
+        .first()
+        .then(bear => {
+          res.status(201).json(bear);
+        })
+        .catch(err => {
+          res.status(500).json({ message: "Couldn't find a bear with that id" });
+        })
+    })
+    .catch(err => {
+      res.status(500).json({ message: "Couldn't post bear to database" });
+    })
+})
+
+server.get('/api/bears', (req, res) => {
+  db('bears')
+    .then(bears => {
+      res.status(200).json(bears);
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    })
+})
+
+server.get('/api/bears/:id', (req, res) => {
+  const { id } = req.params;
+
+  db('bears')
+    .where({ id })
+    .first()
+    .then(bear => {
+      res.status(200).json(bear);
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    })
+})
+
+server.delete('/api/bears/:id', (req, res) => {
+  const { id } = req.params;
+
+  db('bears')
+    .where({ id })
+    .first()
+    .del()
+    .then(count => {
+      count > 0
+      ? res.status(204).end()
+      : res.status(404).json({ message: "Bear not found." });
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    })
+})
+
+server.put('/api/bears/:id', (req, res) => {
+  const { id } = req.params;
+  const updatedbear = req.body;
+
+  console.log(updatedbear)
+
+  return !updatedbear.name || updatedbear.name === ''
+    ? res.status(400).json({ message: "Please provide a valid 'name' key and value." })
+    : db('bears')
+      .where({ id })
+      .first()
+      .update(updatedbear)
+        .then(count => {
+          count > 0
+            ? res.status(200).json(count)
+            : res.status(404).json({ message: "Bear not found." });
         })
         .catch(err => {
           res.status(500).json(err);
